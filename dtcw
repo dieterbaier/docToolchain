@@ -188,8 +188,13 @@ else
 	      exit 1
 	  fi
           docker_cmd=$(which docker)
-          echo $docker_cmd
-          command="$docker_cmd run -u $(id -u):$(id -g) --name doctoolchain${version} -e DTC_HEADLESS=1 -e DTC_SITETHEME -p 8042:8042 --rm -it --entrypoint /bin/bash -v ${PWD}:/project rdmueller/doctoolchain:v${VERSION} -c \"doctoolchain . $1 $2 $3 $4 $5 $6 $7 $8 $9 $DTC_OPTS && exit\""
+          previewPort=`cat $MAIN_CONFIG_FILE | grep previewPort | cut -d'=' -f2 | tr -d '"' | xargs`
+          exposedPreviewPort=""
+          if [ "$previewPort" != "" ] ; then
+            exposedPreviewPort="-p $previewPort:$previewPort"
+          fi
+          command="$docker_cmd run -u $(id -u):$(id -g) --name doctoolchain${version} -e DTC_HEADLESS=1 -e DTC_SITETHEME -p 8042:8042 $exposedPreviewPort --rm -it --entrypoint /bin/bash -v ${PWD}:/project rdmueller/doctoolchain:v${VERSION} -c \"doctoolchain . $1 $2 $3 $4 $5 $6 $7 $8 $9 $DTC_OPTS && exit\""
+          echo $command
 	  echo "use docker installation"
       else
 
